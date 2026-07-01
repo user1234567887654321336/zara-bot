@@ -27,7 +27,7 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-         run: python .github/workflows/check_stock_multi.py
+        run: python .github/workflows/check_stock_multi.py
 
       - name: Save state
         run: |
@@ -37,5 +37,3 @@ jobs:
           git diff --staged --quiet || git commit -m "Update state"
           git pull --rebase origin main
           git push
-    
-          

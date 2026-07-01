@@ -27,7 +27,7 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python check_stock_multi.py
+         run: python .github/workflows/check_stock_multi.py
 
       - name: Save state
         run: |

@@ -7,12 +7,30 @@ CHAT_ID = os.environ["CHAT_ID"]
 STATE_FILE = "state.json"
 
 # Список товаров для отслеживания: (название страны, ссылка на товар)
+# Платье ZW Collection Mini Dress, Oyster-white, 2112/258/251
 PRODUCTS = [
-    ("Германия", "https://www.zara.com/de/en/corsetry-inspired-top-with-ruffles-p04661050.html?v1=522584644"),
-    ("Испания", "https://www.zara.com/es/en/corsetry-inspired-top-with-ruffles-p04661050.html"),
-    ("Португалия", "https://www.zara.com/pt/en/corsetry-inspired-top-with-ruffles-p04661050.html"),
-    ("Польша", "https://www.zara.com/pl/pl/top-gorsetowy-z-falbankami-p04661050.html"),
-    ("Украина", "https://www.zara.com/ua/uk/топ-корсет-із-воланами-p04661050.html"),
+    ("Германия", "https://www.zara.com/de/en/zw-collection-short-dress-p02112258.html"),
+    ("Испания", "https://www.zara.com/es/en/zw-collection-short-dress-p02112258.html"),
+    ("Португалия", "https://www.zara.com/pt/en/zw-collection-short-dress-p02112258.html"),
+    ("Великобритания", "https://www.zara.com/uk/en/zw-collection-short-dress-p02112258.html"),
+    ("Украина", "https://www.zara.com/ua/uk/%D0%BA%D0%BE%D1%80%D0%BE%D1%82%D0%BA%D0%B0-%D1%81%D1%83%D0%BA%D0%BD%D1%8F-zw-collection-p02112258.html?v1=515230994"),
+    # Польша, Франция будут добавлены отдельно, когда пришлют ссылки
+]
+
+# Фразы "нет в наличии" на разных языках - бот будет искать любую из них
+OUT_OF_STOCK_PHRASES = [
+    "out of stock",       # английский
+    "agotado",             # испанский
+    "esgotado",            # португальский
+    "épuisé",              # французский
+    "épuisée",
+    "wyprzedane",          # польский
+    "niedostępny",
+    "brak w magazynie",
+    "esaurito",            # итальянский
+    "esaurita",
+    "немає в наявності",   # украинский
+    "нет в наличии",       # русский (на всякий случай)
 ]
 
 HEADERS = {
@@ -32,7 +50,8 @@ def send_telegram_message(text: str) -> None:
 
 
 def is_out_of_stock(html: str) -> bool:
-    return "out of stock" in html.lower()
+    lowered = html.lower()
+    return any(phrase in lowered for phrase in OUT_OF_STOCK_PHRASES)
 
 
 def load_previous_state() -> dict:
@@ -55,8 +74,13 @@ def check_one(country: str, url: str, state: dict) -> None:
         print(f"[{country}] Ошибка запроса: {e}")
         return
 
-    out_of_stock_now = is_out_of_stock(resp.text)
+    html = resp.text
+    out_of_stock_now = is_out_of_stock(html)
     previous = state.get(url, {}).get("out_of_stock")
+
+    # Диагностика: показываем длину страницы и короткий отрывок вокруг проверки,
+    # чтобы можно было убедиться, что бот реально видит настоящую страницу
+    print(f"[{country}] Длина полученной страницы: {len(html)} символов")
 
     if previous is None:
         print(f"[{country}] Первый запуск. Состояние: {'нет в наличии' if out_of_stock_now else 'в наличии'}")

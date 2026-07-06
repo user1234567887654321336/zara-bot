@@ -81,6 +81,7 @@ def check_one(country: str, url: str, state: dict) -> None:
     # Диагностика: показываем длину страницы и короткий отрывок вокруг проверки,
     # чтобы можно было убедиться, что бот реально видит настоящую страницу
     print(f"[{country}] Длина полученной страницы: {len(html)} символов")
+    print(f"[{country}] Начало страницы: {html[:500]!r}")
 
     if previous is None:
         print(f"[{country}] Первый запуск. Состояние: {'нет в наличии' if out_of_stock_now else 'в наличии'}")
